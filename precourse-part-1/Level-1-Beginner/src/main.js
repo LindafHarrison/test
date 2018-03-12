@@ -74,7 +74,7 @@ function isNegative(num) {
 // ex: positive(-1); -> 1
 // ex: positive(1); -> 1
 function positive(num) {
-  return num > 0;
+  return Math.abs(num);
 }
 
 // Returns boolean of whether argument is classified as a Number object

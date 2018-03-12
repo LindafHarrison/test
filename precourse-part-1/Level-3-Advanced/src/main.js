@@ -5,7 +5,9 @@
 // forEach(['a','b','c'], callback); → prints a,0,[1,2,3] b,1,[1,2,3] c,2,[1,2,3]
 // For each element in the array, the callback we passed is called. The callback can be customized, but in the above example, the callback prints out the element, index, and entire array.
 function forEach(array, callback) {
-
+  for (let i = 0; i < array.length; i += 1) {
+    callback(array[i], i, array);
+  }
 }
 
 // Creates an array of values by running each element in collection through callback
@@ -16,7 +18,11 @@ function forEach(array, callback) {
 // }); -> [3,6,9]
 // BONUS: use the forEach method you use to create map
 function map(array, callback) {
-
+  const newArr = [];
+  forEach(array, (el) => {
+    newArr.push(callback(el));
+  });
+  return newArr;
 }
 
 // Iterates over elements of collection, returning an Array of all elements callback returns truthy for.
@@ -26,8 +32,15 @@ function map(array, callback) {
 // filter({a: 1, b: 2,c: 3,d: 4}, function(element, index, collection) {
 //  return element % 2 !== 0;
 // }); → [1,3]
-function filter(collection, callback) {
 
+function filter(collection, callback) {
+  const result = [];
+  for (const k in collection) {
+    if (callback(collection[k])) {
+      result.push(collection[k]);
+    }
+  }
+  return result;
 }
 
 // Removes all elements from array that callback returns truthy for and returning a collection of elements that did not pass the truthy test.
@@ -39,16 +52,31 @@ function filter(collection, callback) {
 //  return element % 2 !== 0;
 // }); → {b:2, d:4}
 // Challenge: use filter
-function reject(collection, callback) {
 
+function reject(collection, callback) {
+  if (Array.isArray(collection)) {
+    collection = filter(collection, el => !callback(el));
+  } else {
+    for (const k in collection) {
+      if (callback(collection[k])) {
+        delete collection[k];
+      }
+    }
+  }
+  return collection;
 }
 
 // Creates an array without duplicate values from the inputted array.
 // The order of the array is preserved.
 // uniq([1,2,1]); → [1,2]
 function uniq(array) {
-	//CODE HERE
-
+  const result = [];
+  for (let i = 0; i < array.length; i += 1) {
+    if (result.indexOf(array[i]) === -1) {
+      result.push(array[i]);
+    }
+  }
+  return result;
 }
 
 // Gets the index at which the first occurrence of value is found in array
@@ -57,16 +85,30 @@ function uniq(array) {
 // indexOf([11,22,33], 11); → 0
 // indexOf([11,22,33], 5); → -1
 function indexOf(array, value) {
-	//CODE HERE
-
+  let count = -1;
+  for (let i = 0; i < array.length; i += 1) {
+    count++;
+    if (array[i] === value) {
+      return count;
+    }
+  }
+  return -1;
 }
-
 
 // Returns a function that is restricted to invoking func once.
 // Repeat calls to the function return the value of the first call.
-function once(func) {
-	//CODE HERE
 
+function once(func) {
+  let count = 0;
+  let firstResult;
+  return function (...theArgs) {
+    count++;
+    if (count === 1) {
+      firstResult = func(...theArgs);
+      return firstResult;
+    }
+  };
+  return firstResult;
 }
 
 // Reduces collection to a value which is the accumulated result of running each element in collection through iteratee, where each successive invocation is supplied the return value of the previous. If accumulator is not provided the first element of collection is used as the initial value.
@@ -77,8 +119,17 @@ function once(func) {
 // reduce([1,2], function(stored,current) {
 //  return stored + current;
 // },1); → 4
-function reduce(array, callback, start) {
 
+function reduce(array, callback, start) {
+  let accumulator = start;
+  for (let i = 0; i < array.length; i += 1) {
+    if (!accumulator) {
+      accumulator = array[0];
+    } else {
+      accumulator = callback(accumulator, array[i]);
+    }
+  }
+  return accumulator;
 }
 
 // Takes an array and a function as arguments.
@@ -92,18 +143,37 @@ function reduce(array, callback, start) {
 // });  -> false
 // BONUS: use reduce in your answer
 function every(array, func) {
-	//CODE HERE
-
+  for (let i = 0; i < array.length; i++) {
+    if (!func(array[i])) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // Flattens a nested array.
 // flatten([1, [2, 3, [4]]]); → [1, 2, 3, [4]]
 function flatten(array) {
-
+  let resultArr = [];
+  for (let i = 0; i < array.length; i += 1) {
+    resultArr = resultArr.concat(array[i]);
+  }
+  return resultArr;
 }
 
 // Recursively flattens a nested array.
 // flattenDeep([1, [2, 3, [4]]]); → [1, 2, 3, 4]
-function flattenDeep(array) {
-
+function flattenDeep(array, flattenEmpty = []) {
+  if (!Array.isArray(array)) {
+    return [array];
+  }
+  for (let i = 0; i < array.length; i += 1) {
+    const el = array[i];
+    if (!Array.isArray(el)) {
+      flattenEmpty.push(el);
+    } else {
+      flattenEmpty = flattenEmpty.concat(flattenDeep(el));
+    }
+  }
+  return flattenEmpty;
 }
